@@ -1,0 +1,27 @@
+.mobile-bar,.mobile-sheet-header,.mobile-action-header,.mobile-backdrop,.mobile-mode-row{display:none}
+.mobile-horse-detail{width:min(94vw,560px);max-height:85dvh;overflow:auto;border:1px solid #acb8ba;border-radius:12px;padding:18px}.mobile-horse-detail::backdrop{background:#0b1c237a}.mobile-horse-detail h2{font-size:20px;margin:0 0 12px}.mobile-horse-detail p{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.6}.mobile-horse-detail button{min-height:44px;width:100%}
+.mobile-layout .app{grid-template-columns:minmax(0,1fr)!important;height:calc(100dvh - 76px - env(safe-area-inset-bottom))!important;padding:5px!important;gap:5px!important}
+.mobile-layout .app>.workspace{grid-column:1;grid-row:2}
+.mobile-layout .app>.layout-summary{padding:5px;min-height:38px;max-height:38dvh}
+.mobile-layout .layout-summary .composition-editor,.mobile-layout .layout-summary .factor-counts,.mobile-layout .layout-summary #crossPanel{display:none}
+.mobile-layout .app.mobile-summary-expanded>.layout-summary{flex-wrap:wrap!important;overflow:auto}
+.mobile-layout .mobile-summary-expanded .layout-summary .composition-editor{display:block;flex-basis:100%!important;min-width:0;width:100%}
+.mobile-layout .mobile-summary-expanded .layout-summary .factor-counts{display:flex}
+.mobile-layout .mobile-summary-expanded .layout-summary #crossPanel:not(.empty){display:flex;flex-wrap:wrap}
+.mobile-layout .mobile-summary-expanded #nitro{flex-wrap:wrap!important;flex:1 1 100%}
+.mobile-layout .composition-entry input{min-width:0;flex:1;width:0!important}.mobile-layout .composition-entry .btn{min-height:44px}
+.mobile-layout .app>.side{position:fixed;grid-column:auto;left:0;right:0;top:auto;bottom:0;width:100%;height:65dvh;max-height:none;border-radius:16px 16px 0 0;z-index:30;box-shadow:0 -8px 32px #17242a40;padding-bottom:env(safe-area-inset-bottom)}
+.mobile-layout .app>.side.mobile-sheet-full{height:94dvh}
+.mobile-layout .sidebody{overscroll-behavior:contain;padding:10px;flex:1;min-height:0}.mobile-layout .side-header{padding:8px 10px}.mobile-layout .side-header .search{margin:5px 0}.mobile-layout .selection-row .selected{padding:5px 8px}.mobile-layout .status-letters button{min-height:36px}
+.mobile-layout .app>#pedActionRail{display:none;position:fixed;left:0;right:0;bottom:0;width:100%;height:78dvh;grid-column:auto;z-index:30;border-radius:16px 16px 0 0;padding:12px 12px calc(12px + env(safe-area-inset-bottom));gap:8px;overscroll-behavior:contain}
+.mobile-layout .app.mobile-actions-open>#pedActionRail{display:flex}.mobile-layout .ped-action-rail .btn{min-height:44px;font-size:14px}.mobile-layout .ped-action-rail .rail-row>.btn{font-size:18px}.mobile-layout .ped-action-rail .panel-toggle{margin-top:0}
+.mobile-layout .mobile-sheet-header,.mobile-layout .mobile-action-header{display:flex;gap:8px;align-items:center;padding:10px;border-bottom:1px solid #b6c9c6;flex-shrink:0}.mobile-layout .mobile-sheet-header strong,.mobile-layout .mobile-action-header strong{margin-right:auto}.mobile-layout .mobile-sheet-header button,.mobile-layout .mobile-action-header button{min-height:44px;padding:5px 12px;border:1px solid #aebbbc;border-radius:8px;background:#f3f8f7}
+.mobile-layout .mobile-mode-row{display:flex;align-items:center;gap:10px;padding:6px}.mobile-layout .mobile-mode-row select{flex:1;min-height:44px}
+.mobile-layout .mobile-backdrop:not([hidden]){display:block;position:fixed;inset:0;z-index:25;background:#10252b70;border:0}
+.mobile-layout .mobile-bar{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:20;background:#fff;border-top:1px solid #abc1bd;padding:4px 6px calc(6px + env(safe-area-inset-bottom));flex-direction:column;gap:3px;box-shadow:0 -4px 14px #17242a18}.mobile-bar>span{font-size:12px;line-height:16px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}.mobile-bar>div{display:flex;gap:5px}.mobile-bar button{flex:1;min-height:44px;font-size:14px;border:1px solid #a9c3be;border-radius:8px;background:#eef7f5;color:#174e49}
+.mobile-layout .tabs{flex-shrink:0}.mobile-layout .tab{min-height:44px;font-size:12px;padding:6px 2px}.mobile-layout .sidebody input,.mobile-layout .sidebody select,.mobile-layout .search{font-size:16px}.mobile-layout .footer-actions{padding:7px 10px;flex-shrink:0}.mobile-layout .footer-actions .btn{min-height:44px}.mobile-layout .horse{padding:12px}.mobile-layout .check{min-height:44px}.mobile-layout .ped-scroll{touch-action:pan-x pan-y;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}.mobile-layout .cell.active{outline-width:4px}.mobile-layout .toast{z-index:40;bottom:88px}
+/* The override remains reachable after choosing PC display. */
+.ped-action-rail .mobile-mode-row{display:flex;align-items:center;gap:6px;font-size:12px}.ped-action-rail .mobile-mode-row select{min-width:0;flex:1;padding:4px;font-size:12px}
+.mobile-layout .ped-scroll{touch-action:pan-x pan-y pinch-zoom}
+
+.mobile-horse-detail .homebred-factor-controls select{min-height:44px;font-size:16px}

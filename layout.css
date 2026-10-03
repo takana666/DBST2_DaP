@@ -1,0 +1,84 @@
+/* The summary is one horizontal row; pedigree receives the remaining height. */
+.app{grid-template-columns:minmax(0,1fr) 154px 370px!important;grid-template-rows:auto minmax(0,1fr);height:100vh!important;height:100dvh!important;padding:8px!important;gap:8px!important;overflow:hidden}
+.app>.layout-summary{grid-column:1/-1;grid-row:1;min-width:0;padding:6px 8px;background:#fff;border:1px solid var(--line);border-radius:9px;display:flex;flex-wrap:nowrap!important;gap:8px;overflow-x:auto;white-space:nowrap;align-items:center}
+.layout-summary .composition-editor{flex:0 0 355px;min-width:355px;flex-basis:355px!important}
+.layout-summary .crumb{display:none}
+.layout-summary .composition-entry{align-items:center}
+.layout-summary .composition-entry input{width:220px}
+.layout-summary #nitro{display:flex;flex:0 0 auto;flex-wrap:nowrap!important;white-space:nowrap;padding:0;border:0;margin:0;gap:8px;background:transparent}
+.layout-summary #nitro .theories{flex-wrap:nowrap;white-space:nowrap}
+.layout-summary #crossPanel{flex:0 0 auto;padding:0 8px;border-left:1px solid var(--line);white-space:nowrap;gap:8px}
+.layout-summary #crossPanel.empty{display:none}
+.layout-summary .cross-inline-list{overflow:visible;flex:none}
+.app>.workspace{grid-column:1;grid-row:2;min-width:0;height:auto!important;border-radius:9px}
+.app>.ped-action-rail{grid-column:2;grid-row:2;display:flex;flex-direction:column;gap:6px;min-height:0;overflow-y:auto;padding:6px;background:#fff;border:1px solid var(--line);border-radius:9px}
+.ped-action-rail>.btn,.ped-action-rail .btn{width:100%;padding:6px 4px;font-size:12px;white-space:normal}
+.ped-action-rail .generation-actions,.ped-action-rail .generation-buttons,.ped-action-rail .screenshot-actions,.ped-action-rail .ped-clear-actions,.ped-action-rail .pedigree-zoom{display:flex;flex-direction:column;gap:6px;width:100%;margin:0;flex:0 0 auto;align-items:stretch}
+.ped-action-rail .pedigree-zoom output{order:-1;padding:3px}
+.ped-action-rail .panel-toggle{background:#eef7f6;color:var(--teal);margin-bottom:4px}
+.app>.side{grid-column:3;grid-row:2;min-width:0;border-radius:9px}
+.app>.side[hidden]{display:none!important}
+.app.side-closed{grid-template-columns:minmax(0,1fr) 154px!important}
+.app .ped-scroll{padding:8px;min-width:0;min-height:0}
+@media(max-width:1000px){.app{grid-template-columns:minmax(0,1fr) 130px 310px!important}.app.side-closed{grid-template-columns:minmax(0,1fr) 130px!important}}
+@media(max-width:700px){.app{grid-template-columns:minmax(0,1fr) 108px!important}.app.side-closed{grid-template-columns:minmax(0,1fr) 108px!important}.app>.side{position:fixed;right:124px;top:64px;bottom:8px;width:min(340px,calc(100vw - 140px));z-index:5;box-shadow:0 8px 28px #13242b40}.layout-summary .composition-editor{flex-basis:310px!important;min-width:310px}.ped-action-rail .btn{font-size:11px}}
+/* Compact counters and ordered action groups. */
+.layout-summary #nitro{gap:5px}
+.ability-cells,.factor-counts{display:flex;gap:0;flex:none}
+.ability-count,.factor-count{display:inline-flex;align-items:center;gap:0;border:1px solid #aebbbc;margin-left:-1px;min-height:24px;background:#fff;font-size:12px}
+.ability-count>span{padding:2px 3px;background:#eef4f1}.ability-count>b,.factor-count>b{padding:2px 4px;min-width:20px;text-align:center;font-variant-numeric:tabular-nums}
+.factor-count .factor{margin:0;border-radius:0;min-width:20px;height:24px!important;font-size:12px!important;padding:2px 3px}
+.ped-action-rail .rail-group{display:flex;flex-direction:column;gap:6px}
+.ped-action-rail .rail-row{display:flex;flex-direction:row;align-items:center;gap:4px;flex:none}
+.ped-action-rail .rail-row>.btn{width:auto;flex:1;min-width:0;font-size:17px;line-height:1.2}
+.ped-action-rail .zoom-row output{min-width:42px;text-align:center;font-size:12px}
+.ped-action-rail hr{width:100%;border:0;border-top:1px solid #cbd3d3;margin:4px 0;flex:none}
+.cell-main{max-height:100%;overflow:hidden}
+.cell .horse-details{font-size:calc(var(--horse-size) - 4px);line-height:1;margin-top:1px;white-space:normal;overflow-wrap:anywhere;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:var(--detail-lines,1);overflow:hidden;text-overflow:ellipsis}
+.cell .horse-details .sublineage-info{white-space:normal;overflow:visible}
+.homebred-age{font-size:11px;flex:none;font-weight:400}
+.cell .horse-details .sublineage-info{font-size:calc(var(--horse-size) - 4px)}
+.horse-information-hidden .horse-statistics{display:none}
+.horse-information-hidden .horse-details:not(:has(.sublineage-info)){display:none}
+.ped-action-rail .rail-row>[data-orientation]{font-size:12px}
+.ped-action-rail [aria-pressed="true"]{background:#e0f0ed;border-color:var(--teal);color:var(--teal)}
+.pedigree-size>.ped[data-orientation="horizontal"]{width:2800px!important;min-width:2800px!important;height:512px!important;grid-template-columns:1.25fr 1.18fr 1.08fr 1fr 1.05fr .42fr 1.25fr 1.18fr 1.08fr 1fr 1.05fr .42fr;grid-template-rows:repeat(16,minmax(0,1fr))}
+.ped[data-orientation="horizontal"]>.col{display:contents}
+.ped[data-orientation="horizontal"] .cell[data-path^="M"],.ped[data-orientation="horizontal"] .lineage[data-row="8"]{border-left:0}
+.ped[data-orientation="horizontal"] .cell[data-path="M"]{border-left:3px solid #819096}
+
+.tabs .tab{border-right:1px solid #b5c4c3}.tabs .tab:last-child{border-right:0}.tabs .tab.active{background:#e3f2ef}
+.judgment-explanation{font-size:12px;color:#506168;background:#f0f6f5;padding:9px;border:1px solid #cbdad7;border-radius:6px;margin:0 0 10px}
+.ped-scroll:has(.ped[data-orientation="vertical"]) .pedigree-size{margin-inline:auto}
+.candidate-sort-buttons{flex-wrap:wrap}
+.ped-scroll:has(.ped[data-orientation="vertical"]){display:flex;flex-direction:column}
+.ped-scroll:has(.ped[data-orientation="vertical"]) .pedigree-size{margin:auto}
+
+/* Keep displayed text sizes equal across orientations at automatic fit. */
+.cell .horse-name{font-size:calc(var(--horse-size) * var(--text-size-ratio,1))}
+.cell .name-row{line-height:calc(var(--name-line) * var(--text-size-ratio,1))}
+.cell .horse-details{font-size:calc((var(--horse-size) - 4px) * var(--text-size-ratio,1))}
+.cell .horse-details .sublineage-info{font-size:calc((var(--horse-size) - 2px) * var(--text-size-ratio,1))!important}
+.cell .lineage-code{font-size:calc(13px * var(--text-size-ratio,1))!important}
+.cell .factor{font-size:calc(10px * var(--text-size-ratio,1))!important;height:calc(16px * var(--text-size-ratio,1))!important}
+.homebred-age{font-size:calc(11px * var(--text-size-ratio,1))}
+.ped .lineage{font-size:calc(24px * var(--text-size-ratio,1))}
+.ped .lineage[data-row="8"],.ped .lineage[data-row="9"],.ped .lineage[data-row="10"],.ped .lineage[data-row="11"],.ped .lineage[data-row="12"],.ped .lineage[data-row="13"],.ped .lineage[data-row="14"],.ped .lineage[data-row="15"]{background:linear-gradient(135deg,#fffca8 0%,#fffca8 50%,#afffb6 50%,#afffb6 100%)}
+.side>.tabs{border-top:2px solid #829997;border-bottom:2px solid #829997}
+.side .tabs .tab{border-right:2px solid #829997}.side .tabs .tab:last-child{border-right:0}
+
+.ped .lineage.unused-dam-splendid{background:#d9dedf}
+
+.cell .horse-details:has(.sublineage-info) .horse-statistics{display:block}
+.cell .lineage-code{font-size:calc((var(--horse-size) - 2px) * var(--text-size-ratio,1))!important}
+.ped-action-rail .panel-toggle{margin-top:auto;margin-bottom:0}
+.homebred-factor-controls{display:flex;gap:3px;margin-top:3px;min-width:0}
+.homebred-factor-controls select{width:50%;min-width:0;padding:1px 2px;height:24px;font-size:12px;border:1px solid #91aaa9;border-radius:4px;background:#fff;color:#243f46}
+.cell[data-path].generation-4 .homebred-factor-controls select{height:18px;font-size:11px}
+.cell[data-path].generation-4 .homebred-factor-controls{margin-top:1px}
+.cell.generation-5 .homebred-factor-controls{margin-top:0}
+.cell.generation-5 .homebred-factor-controls select{height:13px;font-size:9px;padding:0}
+
+.ped[data-orientation="horizontal"] .homebred-factor-controls{margin-top:5px}
+.ped[data-orientation="horizontal"] .homebred-factor-controls select{height:calc(30px * var(--text-size-ratio,1));font-size:calc(16px * var(--text-size-ratio,1));padding:2px 4px}
+.saved-pedigree{flex-wrap:wrap}.saved-pedigree>div{flex-basis:180px}
