@@ -25,3 +25,9 @@
 .mobile-layout .ped-scroll{touch-action:pan-x pan-y pinch-zoom}
 
 .mobile-horse-detail .homebred-factor-controls select{min-height:44px;font-size:16px}
+
+/* Use the phone's available height rather than centering a short table. */
+.mobile-layout .app .ped-scroll{padding:4px}
+.mobile-layout .ped-scroll:has(.ped[data-orientation="vertical"]) .pedigree-size{margin:0 auto}
+.mobile-layout .cell .horse-name{white-space:normal;overflow-wrap:anywhere;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-height:1.1}
+.mobile-layout .cell .name-row{line-height:1.1;gap:3px}

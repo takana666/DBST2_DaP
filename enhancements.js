@@ -101,12 +101,27 @@ function pedigreeFitPercent(width,height,baseWidth=1400,baseHeight=1024){return 
   let percent=100;try{const saved=Number(localStorage.getItem('dabista2-pedigree-zoom'));if(saved>=40&&saved<=160)percent=Math.round(saved/10)*10}catch{}
   function setZoom(value){
     percent=Math.max(5,Math.min(160,value));const scale=percent/100;
-    const horizontal=ped.dataset?.orientation==='horizontal',height=horizontal?Math.max(512*scale,(scroll?.clientHeight||0)-28):1024*scale;size.style.width=((horizontal?2800:1400)*scale)+'px';size.style.height=height+'px';ped.style.setProperty('height',(height/scale)+'px','important');if(ped.dataset)ped.dataset.renderHeight=String(height/scale);const reference=automatic?pedigreeFitPercent((scroll?.clientWidth||0)-28,(scroll?.clientHeight||0)-28)/100:scale;const ratio=horizontal?reference/scale:1;ped.style.setProperty('--text-size-ratio',String(ratio));if(ped.dataset)ped.dataset.fontRatio=String(ratio);ped.style.transform=`scale(${scale})`;document.querySelectorAll?.('.cell[data-name]').forEach(updateDetailLines);
+    const horizontal=ped.dataset?.orientation==='horizontal';
+    const mobile=document.body.classList.contains('mobile-layout');
+    const padding=mobile?8:28,availableHeight=Math.max(0,(scroll?.clientHeight||0)-padding);
+    // Stretch rows independently of the width on phones; manual zoom scales
+    // this fitted height as well so the overview can always be restored.
+    const mobileFit=pedigreeFitPercent((scroll?.clientWidth||0)-padding,1e9,horizontal?2800:1400)/100;
+    const height=mobile?Math.max((horizontal?512:1024)*scale,availableHeight*scale/mobileFit):horizontal?Math.max(512*scale,availableHeight):1024*scale;
+    size.style.width=((horizontal?2800:1400)*scale)+'px';size.style.height=height+'px';
+    ped.style.setProperty('height',(height/scale)+'px','important');if(ped.dataset)ped.dataset.renderHeight=String(height/scale);
+    const reference=automatic?pedigreeFitPercent((scroll?.clientWidth||0)-28,(scroll?.clientHeight||0)-28)/100:scale;
+    const ratio=mobile?Math.max(1,Math.min(.6,availableHeight/(horizontal?16:32)/30)/mobileFit):horizontal?reference/scale:1;
+    ped.style.setProperty('--text-size-ratio',String(ratio));if(ped.dataset)ped.dataset.fontRatio=String(ratio);
+    ped.style.transform=`scale(${scale})`;document.querySelectorAll?.('.cell[data-name]').forEach(updateDetailLines);
     label.textContent=percent+'%';out.disabled=percent===5;inside.disabled=percent===160;
     if(fit)fit.setAttribute('aria-pressed',String(automatic));
     try{localStorage.setItem('dabista2-pedigree-zoom',String(percent))}catch{}
   }
-  function fitFrame(){if(automatic&&scroll?.clientWidth>28&&scroll?.clientHeight>28)setZoom(pedigreeFitPercent(scroll.clientWidth-28,ped.dataset?.orientation==='horizontal'?1e9:scroll.clientHeight-28,ped.dataset?.orientation==='horizontal'?2800:1400,ped.dataset?.orientation==='horizontal'?512:1024))}
+  function fitFrame(){
+    const mobile=document.body.classList.contains('mobile-layout'),padding=mobile?8:28;
+    if(automatic&&scroll?.clientWidth>padding&&scroll?.clientHeight>padding)setZoom(pedigreeFitPercent(scroll.clientWidth-padding,mobile||ped.dataset?.orientation==='horizontal'?1e9:scroll.clientHeight-padding,ped.dataset?.orientation==='horizontal'?2800:1400,ped.dataset?.orientation==='horizontal'?512:1024));
+  }
   out.onclick=()=>{automatic=false;setZoom(percent-10)};inside.onclick=()=>{automatic=false;setZoom(percent+10)};document.getElementById('pedigreeZoomReset').onclick=()=>{automatic=false;setZoom(100)};
   if(fit)fit.onclick=()=>{automatic=true;fitFrame()};setZoom(percent);fitFrame();
   if(typeof ResizeObserver!=='undefined')new ResizeObserver(fitFrame).observe(scroll);
