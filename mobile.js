@@ -8,6 +8,17 @@
   const modeRow=document.createElement('label');modeRow.className='mobile-mode-row';modeRow.innerHTML='表示方式 <select id="deviceDisplayMode"><option value="auto">自動</option><option value="pc">PC表示</option><option value="mobile">携帯表示</option></select>';rail.insertBefore(modeRow,document.getElementById('sidePanelToggle'));
   const detail=document.createElement('dialog');detail.className='mobile-horse-detail';detail.id='mobileHorseDetail';detail.innerHTML='<h2></h2><p></p><button>閉じる</button>';document.body.appendChild(detail);detail.querySelector('button').onclick=()=>detail.close();detail.onclick=e=>{if(e.target===detail){const r=detail.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)detail.close()}};
   let mobile=false,pcState=null,returnFocus=null,forced='auto';
+  function updateMobileViewport(){
+    if(!mobile)return;
+    const viewport=window.visualViewport;
+    const height=viewport&&viewport.scale===1?viewport.height:window.innerHeight;
+    document.documentElement.style.setProperty('--mobile-viewport-height',height+'px');
+    document.documentElement.style.setProperty('--mobile-bar-height',Math.ceil(bar.getBoundingClientRect().height)+'px');
+  }
+  if(typeof ResizeObserver!=='undefined')new ResizeObserver(updateMobileViewport).observe(bar);
+  window.visualViewport?.addEventListener('resize',updateMobileViewport);
+  window.addEventListener('resize',updateMobileViewport);
+
   function closeSheets(){app.classList.remove('mobile-search-open','mobile-actions-open');backdrop.hidden=true;if(mobile)side.hidden=true;document.getElementById('mobileSearch').setAttribute('aria-expanded','false');document.getElementById('mobileActions').setAttribute('aria-expanded','false');if(returnFocus?.isConnected)returnFocus.focus();returnFocus=null}
   function openSheet(kind){if(!mobile)return;closeSheets();returnFocus=document.activeElement;app.classList.add(kind==='search'?'mobile-search-open':'mobile-actions-open');if(kind==='search')side.hidden=false;backdrop.hidden=false;document.getElementById(kind==='search'?'mobileSearch':'mobileActions').setAttribute('aria-expanded','true');document.getElementById(kind==='search'?'mobileSheetClose':'mobileActionClose').focus()}
   function detailForSelected(){const h=selected?.dataset;if(!h?.name){show('詳細を見る馬を配置してください');return}const sub=h.path==='MF'?cellAt('M')?.dataset.sublineage||h.sublineage:h.sublineage;detail.querySelector('h2').textContent=h.name;detail.querySelector('p').textContent=[pathLabel(h.path)+'セル',h.lineage&&h.lineage!=='--'?'大系統【'+h.lineage+'】':'',sub?'小系統：'+sub:'',h.factors?'因子：'+h.factors:'',horseInformation(h.name,h.homebred==='1'),h.homebred==='1'?'自家製'+homebredGeneration(h)+'代':''].filter(Boolean).join('\n');detail.querySelector('.homebred-factor-controls')?.remove();if(h.homebred==='1'&&h.path.endsWith('F'))detail.querySelector('button').insertAdjacentHTML('beforebegin',homebredFactorControls(h));if(!detail.open)detail.showModal()}
@@ -26,7 +37,7 @@
   function switchLayout(){
     const width=window.innerWidth||document.documentElement.clientWidth,coarse=window.matchMedia?.('(pointer: coarse)').matches||false;
     const next=forced==='mobile'||(forced==='auto'&&(width<=700||(coarse&&width<=1000)));if(next===mobile)return;
-    if(next){pcState={closed:app.classList.contains('side-closed'),percent:parseFloat(document.getElementById('pedigreeZoomValue').textContent)||100,automatic:document.getElementById('pedigreeFit').getAttribute('aria-pressed')==='true',orientation:document.getElementById('ped').dataset.orientation};mobile=true;document.body.classList.add('mobile-layout');app.classList.remove('side-closed');side.hidden=true;document.getElementById('pedigreeVertical').click();window.dispatchEvent(new CustomEvent('pedigree-zoom-request',{detail:{percent:100,automatic:true}}));updateSelection()}
+    if(next){pcState={closed:app.classList.contains('side-closed'),percent:parseFloat(document.getElementById('pedigreeZoomValue').textContent)||100,automatic:document.getElementById('pedigreeFit').getAttribute('aria-pressed')==='true',orientation:document.getElementById('ped').dataset.orientation};mobile=true;document.body.classList.add('mobile-layout');updateMobileViewport();app.classList.remove('side-closed');side.hidden=true;document.getElementById('pedigreeVertical').click();window.dispatchEvent(new CustomEvent('pedigree-zoom-request',{detail:{percent:100,automatic:true}}));updateSelection()}
     else{closeSheets();mobile=false;document.body.classList.remove('mobile-layout');app.classList.remove('mobile-summary-expanded');app.classList.toggle('side-closed',pcState?.closed||false);side.hidden=!!pcState?.closed;document.getElementById(pcState?.orientation==='horizontal'?'pedigreeHorizontal':'pedigreeVertical').click();window.dispatchEvent(new CustomEvent('pedigree-zoom-request',{detail:{percent:pcState?.percent||100,automatic:pcState?.automatic??true}}))}
   }
   document.getElementById('deviceDisplayMode').onchange=e=>{forced=e.target.value;switchLayout()};window.addEventListener('resize',switchLayout);switchLayout();

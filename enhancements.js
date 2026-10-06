@@ -107,7 +107,7 @@ function pedigreeFitPercent(width,height,baseWidth=1400,baseHeight=1024){return 
     // Stretch rows independently of the width on phones; manual zoom scales
     // this fitted height as well so the overview can always be restored.
     const mobileFit=pedigreeFitPercent((scroll?.clientWidth||0)-padding,1e9,horizontal?2800:1400)/100;
-    const height=mobile?Math.max((horizontal?512:1024)*scale,availableHeight*scale/mobileFit):horizontal?Math.max(512*scale,availableHeight):1024*scale;
+    const height=mobile?availableHeight*scale/mobileFit:horizontal?Math.max(512*scale,availableHeight):1024*scale;
     size.style.width=((horizontal?2800:1400)*scale)+'px';size.style.height=height+'px';
     ped.style.setProperty('height',(height/scale)+'px','important');if(ped.dataset)ped.dataset.renderHeight=String(height/scale);
     const reference=automatic?pedigreeFitPercent((scroll?.clientWidth||0)-28,(scroll?.clientHeight||0)-28)/100:scale;

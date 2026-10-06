@@ -1,6 +1,6 @@
 .mobile-bar,.mobile-sheet-header,.mobile-action-header,.mobile-backdrop,.mobile-mode-row{display:none}
 .mobile-horse-detail{width:min(94vw,560px);max-height:85dvh;overflow:auto;border:1px solid #acb8ba;border-radius:12px;padding:18px}.mobile-horse-detail::backdrop{background:#0b1c237a}.mobile-horse-detail h2{font-size:20px;margin:0 0 12px}.mobile-horse-detail p{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.6}.mobile-horse-detail button{min-height:44px;width:100%}
-.mobile-layout .app{grid-template-columns:minmax(0,1fr)!important;height:calc(100dvh - 76px - env(safe-area-inset-bottom))!important;padding:5px!important;gap:5px!important}
+.mobile-layout .app{grid-template-columns:minmax(0,1fr)!important;height:calc(var(--mobile-viewport-height,100dvh) - var(--mobile-bar-height,76px) - 2px)!important;padding:5px!important;gap:5px!important}
 .mobile-layout .app>.workspace{grid-column:1;grid-row:2}
 .mobile-layout .app>.layout-summary{padding:5px;min-height:38px;max-height:38dvh}
 .mobile-layout .layout-summary .composition-editor,.mobile-layout .layout-summary .factor-counts,.mobile-layout .layout-summary #crossPanel{display:none}
@@ -31,3 +31,11 @@
 .mobile-layout .ped-scroll:has(.ped[data-orientation="vertical"]) .pedigree-size{margin:0 auto}
 .mobile-layout .cell .horse-name{white-space:normal;overflow-wrap:anywhere;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-height:1.1}
 .mobile-layout .cell .name-row{line-height:1.1;gap:3px}
+
+/* A single scroll area prevents fixed search controls from crushing results. */
+.mobile-layout .app>.side{overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y}
+.mobile-layout .app>.side .sidebody{flex:0 0 auto;overflow:visible;min-height:0}
+.mobile-layout .side>.mobile-sheet-header{position:sticky;top:0;z-index:2;background:#fff}
+/* Fractional rows must be allowed to shrink when summary details are open. */
+.mobile-layout .ped>.col{grid-template-rows:repeat(32,minmax(0,1fr))}
+.mobile-layout .ped .cell,.mobile-layout .ped .lineage{min-height:0;overflow:hidden}
