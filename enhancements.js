@@ -117,7 +117,18 @@ function pedigreeFitPercent(width,height,baseWidth=1400,baseHeight=1024){return 
     const mobileFit=pedigreeFitPercent((scroll?.clientWidth||0)-padding,1e9,horizontal?2800:1400)/100;
     const height=mobile?availableHeight*scale/mobileFit:horizontal?Math.max(512*scale,availableHeight):1024*scale;
     size.style.width=((horizontal?2800:1400)*scale)+'px';size.style.height=height+'px';
-    ped.style.setProperty('height',(height/scale)+'px','important');if(ped.dataset)ped.dataset.renderHeight=String(height/scale);
+    ped.style.setProperty('height',(height/scale)+'px','important');
+    // Fix the top-level grid track as well as the outer box on phones.
+    // Otherwise an implicit auto row can grow to the columns' minimum content height.
+    if(mobile&&!horizontal){
+      const innerHeight=Math.max(0,height/scale-1);
+      ped.style.setProperty('grid-template-rows',innerHeight+'px');
+      ped.querySelectorAll?.(':scope > .col').forEach(col=>col.style.setProperty('height',innerHeight+'px'));
+    }else{
+      ped.style.removeProperty('grid-template-rows');
+      ped.querySelectorAll?.(':scope > .col').forEach(col=>col.style.removeProperty('height'));
+    }
+    if(ped.dataset)ped.dataset.renderHeight=String(height/scale);
     const reference=automatic?pedigreeFitPercent((scroll?.clientWidth||0)-28,(scroll?.clientHeight||0)-28)/100:scale;
     const ratio=mobile?Math.max(1,Math.min(.6,availableHeight/(horizontal?16:32)/30)/mobileFit):horizontal?reference/scale:1;
     ped.style.setProperty('--text-size-ratio',String(ratio));if(ped.dataset)ped.dataset.fontRatio=String(ratio);

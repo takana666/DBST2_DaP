@@ -61,3 +61,8 @@
 .mobile-layout .app.mobile-search-open,.mobile-layout .app.mobile-actions-open{z-index:26}
 .mobile-layout .app>.mobile-backdrop:not([hidden]){z-index:25}
 .mobile-layout .app>.side,.mobile-layout .app>#pedActionRail{z-index:30}
+
+/* Mobile text and factor controls must not enlarge the implicit grid row. */
+.mobile-layout .ped[data-orientation="vertical"]{grid-template-rows:minmax(0,1fr)}
+.mobile-layout .ped[data-orientation="vertical"]>.col{height:100%;min-height:0;overflow:hidden;grid-template-rows:repeat(32,minmax(0,1fr))}
+.mobile-layout .ped[data-orientation="vertical"]>.col>.cell,.mobile-layout .ped[data-orientation="vertical"]>.col>.lineage{min-height:0;max-height:100%;overflow:hidden}
