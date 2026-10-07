@@ -73,7 +73,7 @@ function crossesOf(snap){
   return [...groups.values()].filter(list=>new Set(list.map(x=>x.side)).size>1&&new Set(list.map(x=>x.child).filter(Boolean)).size>1);
 }
 function metrics(source){
-  const snap=propagated(source),code=p=>{const c=snap[p]?.lineage||'';return c==='--'?'':c};
+  const snap=propagated(source),code=p=>youngestTheoryLineage(snap,p);
   const funnyCodes=funnyPaths.map(code),funny=funnyCodes.every(Boolean)&&new Set(funnyCodes).size>=7;
   const sire=splendidSirePaths.map(code),dam=splendidDamPaths.map(code),sorted=a=>[...a].sort().join('|');
   const splendid=sire.every(Boolean)&&dam.every(Boolean)&&new Set(dam).size>=3&&sorted(sire)===sorted(dam);
@@ -95,13 +95,20 @@ function conditions(){return {
 function satisfies(m,c){return c.theories.every(k=>m[k])&&m.nick>=c.nick&&(c.cross==='any'||(c.cross==='yes'?m.crosses>0:m.crosses===0))&&m.speed>=c.speed&&m.stamina>=c.stamina&&m.power>=c.power}
 
 function optionCodes(path,snap,fs,cache){
-  if(snap[path]?.homebred)return optionCodes(path+'F',snap,fs,cache);
-  if(snap[path])return new Set(snap[path].lineage&&snap[path].lineage!=='--'?[snap[path].lineage]:[]);
-  const base=fs.find(x=>path.startsWith(x));if(!base)return new Set();
-  if(Number(document.getElementById('optimizerDepth')?.value)>0)return new Set(majorLineageCodes);
-  const key=base+'>'+path;if(cache.has(key))return cache.get(key);
-  const result=new Set(),rel=path.slice(base.length);
-  candidatesFor(base,snap).forEach(h=>{const e=entryFor(h,rel),code=codeOf(e);if(code&&code!=='--')result.add(code)});cache.set(key,result);return result;
+  const key='youngest>'+path;if(cache.has(key))return cache.get(key);
+  for(const youngPath of theoryLineagePaths(path)){
+    const fixed=snap[youngPath]?.lineage;
+    if(majorLineageCodes.includes(fixed)){const result=new Set([fixed]);cache.set(key,result);return result}
+    const base=fs.find(x=>youngPath.startsWith(x));if(!base)continue;
+    if(Number(document.getElementById('optimizerDepth')?.value)>0)return new Set(majorLineageCodes);
+    const result=new Set();
+    candidatesFor(base,snap).forEach(h=>{
+      const code=youngestTheoryLineage(assignHorse(snap,base,h),path);
+      if(code)result.add(code);
+    });
+    cache.set(key,result);return result;
+  }
+  const result=new Set();cache.set(key,result);return result;
 }
 function funnyPossible(snap,fs,cache){
   let masks=new Set([0]);const codeIndex=new Map(majorLineageCodes.map((x,i)=>[x,i]));
@@ -131,7 +138,7 @@ function refreshAvailability(){
 
 function partialScore(snap,c){
   const m=metrics(snap);let score=m.speed+m.stamina+m.power*2+m.nick*15+(m.elaborate?40:0)+(m.funny?40:0)+(m.splendid?40:0);
-  const unique=new Set(funnyPaths.map(p=>snap[p]?.lineage).filter(Boolean)).size;score+=unique*5;
+  const unique=new Set(funnyPaths.map(p=>youngestTheoryLineage(snap,p)).filter(Boolean)).size;score+=unique*5;
   c.theories.forEach(k=>{if(m[k])score+=100});if(m.nick>=c.nick)score+=30;return score;
 }
 function setStatus(text,error=false){const el=document.getElementById('optimizerStatus');el.textContent=text;el.classList.toggle('error',error)}
@@ -243,7 +250,7 @@ function deepScore(snap,c){
   for(const k of ['speed','stamina','power'])score+=(c[k]>0?Math.min(m[k],c[k])*12:m[k]);
   if(c.nick>0)score+=Math.min(c.nick,m.nick)*70;
   for(const k of c.theories)if(m[k])score+=350;
-  if(c.theories.includes('funny')||c.theories.includes('perfect'))score+=new Set(funnyPaths.map(p=>snap[p]?.lineage).filter(Boolean)).size*25;
+  if(c.theories.includes('funny')||c.theories.includes('perfect'))score+=new Set(funnyPaths.map(p=>youngestTheoryLineage(snap,p)).filter(Boolean)).size*25;
   if(c.theories.includes('splendid')||c.theories.includes('perfect')){
     const sire=splendidSirePaths.map(p=>snap[p]?.lineage).filter(Boolean),dam=splendidDamPaths.map(p=>snap[p]?.lineage).filter(Boolean),left=[...dam];let n=0;
     for(const x of sire){const j=left.indexOf(x);if(j>=0){n++;left.splice(j,1)}}score+=n*50+new Set(dam).size*10;
