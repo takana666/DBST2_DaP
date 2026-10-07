@@ -55,3 +55,9 @@
 .mobile-layout .mobile-sheet-header strong{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .mobile-layout .mobile-sheet-header button{flex:0 0 auto}
 .mobile-layout #mobileScrollTop,.mobile-layout #mobileScrollBottom{min-width:44px;font-size:20px;padding-inline:8px}
+
+/* Keep backdrop and panels in the same stacking context. Raise the whole
+   open sheet above the separate bottom navigation bar. */
+.mobile-layout .app.mobile-search-open,.mobile-layout .app.mobile-actions-open{z-index:26}
+.mobile-layout .app>.mobile-backdrop:not([hidden]){z-index:25}
+.mobile-layout .app>.side,.mobile-layout .app>#pedActionRail{z-index:30}

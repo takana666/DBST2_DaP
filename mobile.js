@@ -1,7 +1,7 @@
 'use strict';
 (function setupMobileLayout(){
   const app=document.querySelector('.app'),side=document.querySelector('.side'),rail=document.getElementById('pedActionRail');
-  const backdrop=document.createElement('button');backdrop.id='mobileBackdrop';backdrop.className='mobile-backdrop';backdrop.setAttribute('aria-label','パネルを閉じる');backdrop.hidden=true;document.body.appendChild(backdrop);
+  const backdrop=document.createElement('button');backdrop.id='mobileBackdrop';backdrop.className='mobile-backdrop';backdrop.setAttribute('aria-label','パネルを閉じる');backdrop.hidden=true;app.appendChild(backdrop);
   const bar=document.createElement('nav');bar.className='mobile-bar';bar.setAttribute('aria-label','携帯の操作');bar.innerHTML='<span id="mobileSelected">父セル</span><div><button id="mobileFit">全体表示</button><button id="mobileSearch">馬を検索</button><button id="mobileActions">操作</button><button id="mobileDetails">詳細</button><button id="mobileSummary">判定</button></div>';document.body.appendChild(bar);
   const header=document.createElement('div');header.className='mobile-sheet-header';header.innerHTML='<strong>馬の検索・探索</strong><button type="button" id="mobileScrollTop" aria-label="条件・候補一覧の一番上へ" title="一番上へ">↑</button><button type="button" id="mobileScrollBottom" aria-label="条件・候補一覧の一番下へ" title="一番下へ">↓</button><button id="mobileSheetClose">閉じる</button>';side.prepend(header);
   const actionHeader=document.createElement('div');actionHeader.className='mobile-action-header';actionHeader.innerHTML='<strong>血統表の操作</strong><button id="mobileActionClose">閉じる</button>';rail.prepend(actionHeader);
