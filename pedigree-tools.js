@@ -19,7 +19,7 @@ function validateSavedPedigree(record){
   for(const [path,h] of Object.entries(record.snapshot)){
     if(!/^[FM]{1,5}$/.test(path)||!h||typeof h.name!=='string'||!h.name||h.name.length>160)throw new Error('血統セルの形式が不正です');
     for(const key of ['lineage','sublineage','factors'])if(h[key]!=null&&(typeof h[key]!=='string'||h[key].length>160))throw new Error('血統情報の形式が不正です');
-    snapshot[path]={name:h.name,lineage:h.lineage||'',sublineage:h.sublineage||'',factors:h.factors||'',homebred:h.homebred===true,homebredGeneration:homebredGeneration(h)};
+    snapshot[path]={name:h.name,lineage:h.lineage||'',sublineage:h.sublineage||'',factors:correctedHorseFactors(h),homebred:h.homebred===true,homebredGeneration:homebredGeneration(h)};
   }
   return {id:typeof record.id==='string'&&/^[\w-]{1,100}$/.test(record.id)?record.id:newSavedPedigreeId(),name:record.name.trim(),sex:record.sex,snapshot};
 }

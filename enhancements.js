@@ -2,11 +2,12 @@
 function homebredGeneration(h){if(!h||!(h.homebred===true||h.homebred==='1'))return 0;return Number(h.homebredGeneration)||Number((h.name||'').match(/^(\d+)薄自家製/)?.[1])||1}
 function snapshotHomebredGeneration(snap,path){const h=snap[path];if(!h?.homebred)return 0;if(snap[path+'F']||snap[path+'M'])return Math.max(snapshotHomebredGeneration(snap,path+'F'),snapshotHomebredGeneration(snap,path+'M'))+1;return homebredGeneration(h)}
 function metadataName(name){return (name||'').normalize('NFKC').toLowerCase().replace(/[\s.・'’`´\-‐‑‒–—―]/g,'')}
+function correctedHorseFactors(h){return h?.name==='アグネスタキオン'&&h.homebred!==true&&h.homebred!=='1'?'':h?.factors||''}
 function nitroFactorCounts(horses){
   const counts=Object.fromEntries(['短','速','パ','底','長','ダ','丈','早','晩','堅','気'].map(f=>[f,0])),seen=new Set();
   for(const horse of horses){
     const name=metadataName(horse.name);if(!name)continue;
-    for(const factor of new Set([...(horse.factors||'')])){
+    for(const factor of new Set([...correctedHorseFactors(horse)])){
       const key=name+'\t'+factor;if(!(factor in counts)||seen.has(key))continue;
       seen.add(key);counts[factor]++;
     }
@@ -26,6 +27,7 @@ function horseInformation(name,homebred){
 function updateDetailLines(cell){const depth=cell.dataset.path.length,font=[0,18,16,14,12,10][depth],nameLine=[0,28,25,23,20,16][depth];const ped=typeof document.getElementById==='function'?document.getElementById('ped'):null;const horizontal=ped?.dataset?.orientation==='horizontal',height=Number(ped?.dataset?.renderHeight)||(horizontal?512:1024);const rowHeight=height/2**(depth-(horizontal?1:0));const ratio=Number(ped?.dataset?.fontRatio)||1;cell.style?.setProperty('--detail-lines',Math.max(1,Math.floor((rowHeight-nameLine*ratio-3)/(font*ratio))))}
 function homebredFactorControls(h){if(h.homebred!=='1'||!h.path.endsWith('F'))return '';const choices=['短','速','パ','底','長','ダ','丈','早','晩','堅','気'],assigned=[...(h.factors||'')];return `<div class="homebred-factor-controls" aria-label="自家製種牡馬の因子">${[0,1].map(i=>`<select data-homebred-factor="${i}" aria-label="${escapeCellText(h.name)}の因子${i+1}"><option value="">因子${i+1}：なし</option>${choices.map(f=>`<option value="${f}" ${assigned[i]===f?'selected':''} ${assigned[1-i]===f?'disabled':''}>${f}</option>`).join('')}</select>`).join('')}</div>`}
 function renderHorseCell(cell){
+  cell.dataset.factors=correctedHorseFactors(cell.dataset);
   const h=cell.dataset,name=escapeCellText(h.name),lineage=h.path.endsWith('F')&&h.lineage&&h.lineage!=='--'?`<span class="lineage-code">【${escapeCellText(h.lineage)}】</span>`:'';
   const subValue=h.path==='MF'?(typeof cellAt==='function'?cellAt('M')?.dataset.sublineage:'')||h.sublineage:h.sublineage;const sub=['F','MF'].includes(h.path)&&subValue&&subValue!=='子系統未確認'?subValue:'';
   const info=h.placed==='1'&&!window.DABISTA_HIDE_HORSE_INFORMATION?horseInformation(h.name,h.homebred==='1'):'',detail=[sub,info].filter(Boolean).join('・');
@@ -103,7 +105,13 @@ function pedigreeFitPercent(width,height,baseWidth=1400,baseHeight=1024){return 
     percent=Math.max(5,Math.min(160,value));const scale=percent/100;
     const horizontal=ped.dataset?.orientation==='horizontal';
     const mobile=document.body.classList.contains('mobile-layout');
-    const padding=mobile?8:28,availableHeight=Math.max(0,(scroll?.clientHeight||0)-padding);
+    const padding=mobile?8:28;
+    let availableHeight=Math.max(0,(scroll?.clientHeight||0)-padding);
+    if(mobile&&scroll?.getBoundingClientRect){
+      const rect=scroll.getBoundingClientRect(),bar=document.querySelector('.mobile-bar');
+      const bottom=bar?.getBoundingClientRect().top??window.innerHeight;
+      availableHeight=Math.max(0,Math.min(availableHeight,bottom-rect.top-padding));
+    }
     // Stretch rows independently of the width on phones; manual zoom scales
     // this fitted height as well so the overview can always be restored.
     const mobileFit=pedigreeFitPercent((scroll?.clientWidth||0)-padding,1e9,horizontal?2800:1400)/100;
@@ -114,6 +122,7 @@ function pedigreeFitPercent(width,height,baseWidth=1400,baseHeight=1024){return 
     const ratio=mobile?Math.max(1,Math.min(.6,availableHeight/(horizontal?16:32)/30)/mobileFit):horizontal?reference/scale:1;
     ped.style.setProperty('--text-size-ratio',String(ratio));if(ped.dataset)ped.dataset.fontRatio=String(ratio);
     ped.style.transform=`scale(${scale})`;document.querySelectorAll?.('.cell[data-name]').forEach(updateDetailLines);
+    if(mobile&&automatic){scroll.scrollTop=0;scroll.scrollLeft=0}
     label.textContent=percent+'%';out.disabled=percent===5;inside.disabled=percent===160;
     if(fit)fit.setAttribute('aria-pressed',String(automatic));
     try{localStorage.setItem('dabista2-pedigree-zoom',String(percent))}catch{}
@@ -124,6 +133,17 @@ function pedigreeFitPercent(width,height,baseWidth=1400,baseHeight=1024){return 
   }
   out.onclick=()=>{automatic=false;setZoom(percent-10)};inside.onclick=()=>{automatic=false;setZoom(percent+10)};document.getElementById('pedigreeZoomReset').onclick=()=>{automatic=false;setZoom(100)};
   if(fit)fit.onclick=()=>{automatic=true;fitFrame()};setZoom(percent);fitFrame();
-  if(typeof ResizeObserver!=='undefined')new ResizeObserver(fitFrame).observe(scroll);
-  if(typeof window.addEventListener==='function'){window.addEventListener('resize',fitFrame);window.addEventListener('pedigree-zoom-request',e=>{automatic=!!e.detail.automatic;setZoom(e.detail.percent);fitFrame()});window.addEventListener('pedigree-layout-change',()=>{setZoom(percent);fitFrame()})}
+  let fitPending=false;
+  function scheduleFit(){
+    if(fitPending)return;fitPending=true;
+    const schedule=typeof requestAnimationFrame==='function'?requestAnimationFrame:cb=>setTimeout(cb,0);
+    schedule(()=>{fitPending=false;if(automatic)fitFrame();else setZoom(percent)});
+  }
+  if(typeof ResizeObserver!=='undefined'){
+    const observer=new ResizeObserver(scheduleFit);
+    for(const node of [scroll,document.querySelector('.workspace'),document.querySelector('.layout-summary')])if(node)observer.observe(node);
+  }
+  if(typeof MutationObserver!=='undefined')new MutationObserver(scheduleFit).observe(ped,{subtree:true,childList:true});
+  window.addEventListener?.('pedigree-restored',scheduleFit);
+  if(typeof window.addEventListener==='function'){window.addEventListener('resize',fitFrame);window.addEventListener('pedigree-zoom-request',e=>{automatic=!!e.detail.automatic;setZoom(e.detail.percent);fitFrame()});window.addEventListener('pedigree-layout-change',scheduleFit)}
 })();
