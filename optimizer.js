@@ -78,8 +78,8 @@ function metrics(source){
   const funnyCodes=funnyPaths.map(code),funny=funnyCodes.every(Boolean)&&new Set(funnyCodes).size>=7;
   const sire=splendidSirePaths.map(code),dam=splendidDamPaths.map(code),sorted=a=>[...a].sort().join('|');
   const splendid=sire.every(Boolean)&&dam.every(Boolean)&&new Set(dam).size>=3&&sorted(sire)===sorted(dam);
-  const paternal=Object.entries(snap).filter(([p,h])=>p.startsWith('F')&&p.length<=4&&h.name);
-  const maternal=Object.entries(snap).filter(([p,h])=>p.startsWith('M')&&p.length<=4&&h.name);
+  const paternal=elaborateEntries(snap,'F');
+  const maternal=elaborateEntries(snap,'M');
   const elaborate=paternal.some(([,a])=>maternal.some(([,b])=>elaboratePairs.has(norm(a.name)+'\t'+norm(b.name))));
   const counts=nitroFactorCounts(Object.values(snap));
   const crosses=crossesOf(snap);
@@ -122,9 +122,9 @@ function multisetKeys(paths,snap,fs,cache,requireThree){
 }
 function splendidPossible(snap,fs,cache){const a=multisetKeys(splendidSirePaths,snap,fs,cache,false),b=multisetKeys(splendidDamPaths,snap,fs,cache,true);for(const x of a)if(b.has(x))return true;return false}
 function possibleNames(side,snap,fs){
-  const names=new Set(Object.entries(snap).filter(([p,h])=>p.startsWith(side)&&p.length<=4&&h.name).map(([,h])=>norm(h.name)));
+  const names=new Set(elaborateEntries(snap,side).map(([,h])=>norm(h.name)));
   fs.filter(base=>base.startsWith(side)&&base.length<=4).forEach(base=>(Number(document.getElementById('optimizerDepth')?.value)>0?[...window.DABISTA2_DATA.sires,...window.DABISTA2_DATA.dams]:candidatesFor(base,snap)).forEach(h=>{
-    names.add(norm(h.name));for(const [jp,a] of Object.entries(h.ancestors||{}))if(base.length+jp.length<=4)names.add(norm(a.name));
+    if(elaboratePositionEligible(base,side))names.add(norm(h.name));for(const [jp,a] of Object.entries(h.ancestors||{})){const path=base+[...jp].map(x=>x==='父'?'F':'M').join('');if(elaboratePositionEligible(path,side))names.add(norm(a.name));}
   }));return names;
 }
 function elaboratePossible(snap,fs){const p=possibleNames('F',snap,fs),m=possibleNames('M',snap,fs);for(const pair of window.DABISTA2_DATA.elaboratePairs||[])if(p.has(norm(pair[0]))&&m.has(norm(pair[1])))return true;return false}
