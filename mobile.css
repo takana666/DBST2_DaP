@@ -32,10 +32,26 @@
 .mobile-layout .cell .horse-name{white-space:normal;overflow-wrap:anywhere;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-height:1.1}
 .mobile-layout .cell .name-row{line-height:1.1;gap:3px}
 
-/* A single scroll area prevents fixed search controls from crushing results. */
-.mobile-layout .app>.side{overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y}
-.mobile-layout .app>.side .sidebody{flex:0 0 auto;overflow:visible;min-height:0}
-.mobile-layout .side>.mobile-sheet-header{position:sticky;top:0;z-index:2;background:#fff}
+/* The tabs and action footer stay visible; search controls and results scroll together. */
+.mobile-layout .app>.side{top:var(--mobile-viewport-top,0px);bottom:auto;height:var(--mobile-viewport-height,100dvh);max-height:var(--mobile-viewport-height,100dvh);border-radius:0;display:flex;flex-direction:column;overflow:hidden;box-sizing:border-box}
+.mobile-layout .app>.side.mobile-sheet-full{height:var(--mobile-viewport-height,100dvh)}
+.mobile-layout .app>.side .sidebody{flex:1 1 0;overflow-y:auto;min-height:0;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y}
+.mobile-layout .side>.mobile-sheet-header,.mobile-layout .side>.tabs,.mobile-layout .side>.footer-actions{flex:0 0 auto;background:#fff}
+.mobile-layout .side>.footer-actions{padding-bottom:7px}
+.mobile-layout .sidebody>.side-header{padding:0;margin-bottom:8px}
+/* Keep the fitted board anchored above the bottom toolbar. */
+.mobile-layout{overflow:hidden}
+.mobile-layout .app{position:fixed;top:var(--mobile-viewport-top,0px);left:0;right:0;margin:0;grid-template-rows:auto minmax(0,1fr)}
+.mobile-layout .app>.workspace{min-height:0;overflow:hidden}
+.mobile-layout .ped-scroll .pedigree-size{margin-block:0!important;flex:none}
 /* Fractional rows must be allowed to shrink when summary details are open. */
 .mobile-layout .ped>.col{grid-template-rows:repeat(32,minmax(0,1fr))}
 .mobile-layout .ped .cell,.mobile-layout .ped .lineage{min-height:0;overflow:hidden}
+
+/* Keep the close control visible throughout the action panel's scroll range. */
+.mobile-layout .app>#pedActionRail{padding-top:0;overflow-y:auto}
+.mobile-layout #pedActionRail>*{flex-shrink:0}
+.mobile-layout #pedActionRail>.mobile-action-header{position:sticky;top:0;z-index:3;background:#fff}
+.mobile-layout .mobile-sheet-header strong{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mobile-layout .mobile-sheet-header button{flex:0 0 auto}
+.mobile-layout #mobileScrollTop,.mobile-layout #mobileScrollBottom{min-width:44px;font-size:20px;padding-inline:8px}
