@@ -1,6 +1,6 @@
 'use strict';
 function savedSearchCandidates(path){
-  if(path.length>=5)return [];
+  if(!/^[FM]{1,5}$/.test(path))return [];
   try{return JSON.parse(localStorage.getItem('dabista2-saved-pedigrees-v1')||'[]').map(validateSavedPedigree).filter(record=>savedPedigreeCompatible(record,path)).map(record=>{
     const father=record.snapshot.F||{},ancestors=Object.fromEntries(Object.entries(record.snapshot).map(([p,h])=>[[...p].map(x=>x==='F'?'父':'母').join(''),{...h,factors:[...(h.factors||'')]}]));
     return {...record,id:'homebred-'+record.id,recordId:record.id,savedPedigree:true,type:path.endsWith('M')?'繁殖牝馬':'種牡馬',lineage:father.lineage,lineageCode:father.lineage,sublineage:father.sublineage,factors:[],ancestors,stats:'自家製'+(Math.max(snapshotHomebredGeneration(record.snapshot,'F'),snapshotHomebredGeneration(record.snapshot,'M'))+1)+'代'};
@@ -26,8 +26,9 @@ function validateSavedPedigree(record){
 function newSavedPedigreeId(){return typeof crypto!=='undefined'&&crypto.randomUUID?crypto.randomUUID():'saved-'+Date.now()+'-'+Math.random().toString(36).slice(2)}
 function savedPedigreeProjection(record,base){
   if(!savedPedigreeCompatible(record,base))throw new Error('保存した性別と配置先が一致しません');
-  if(base.length>=5)throw new Error('保存血統を配置するには父母のセルが必要です。4代目までのセルを選んでください');
-  const projected={[base]:{name:record.name,lineage:'',sublineage:'',factors:'',homebred:true,homebredGeneration:Math.max(snapshotHomebredGeneration(record.snapshot,'F'),snapshotHomebredGeneration(record.snapshot,'M'))+1}};
+  if(!/^[FM]{1,5}$/.test(base))throw new Error('1〜5代目の配置セルを選んでください');
+  const father=record.snapshot.F||{};
+  const projected={[base]:{name:record.name,lineage:father.lineage||'',sublineage:father.sublineage||'',factors:'',homebred:true,homebredGeneration:Math.max(snapshotHomebredGeneration(record.snapshot,'F'),snapshotHomebredGeneration(record.snapshot,'M'))+1}};
   for(const [path,h] of Object.entries(record.snapshot))if(base.length+path.length<=5)projected[base+path]={...h};
   return projected;
 }
@@ -86,7 +87,7 @@ function placeSavedPedigree(record){
     const path=selected?.dataset.path||'F',targetSex=path.endsWith('M')?'牝馬':'牡馬';
     document.getElementById('savedPedigreeTarget').textContent='呼出先：'+pathLabel(path)+'セル（'+targetSex+'）。'+targetSex+'・設定なしの保存血統を表示します。';
     const visible=records.filter(r=>savedPedigreeCompatible(r,path));
-    document.getElementById('savedPedigreeList').innerHTML=visible.length?visible.map(r=>`<article class="saved-pedigree"><div><strong>${escapeCellText(r.name)}</strong><small>${{sire:'牡馬',dam:'牝馬',any:'設定なし'}[r.sex]}／${escapeCellText(r.snapshot.F?.name||'未選択')} × ${escapeCellText(r.snapshot.M?.name||'未選択')}</small></div><button class="btn primary" data-saved-place="${r.id}" ${path.length>=5?'disabled':''}>選択セルに配置</button><button class="btn" data-saved-whole="${r.id}">全体に配置</button><button class="btn" data-saved-delete="${r.id}">削除</button></article>`).join(''):'<p>この配置先で呼び出せる保存血統はありません。</p>';
+    document.getElementById('savedPedigreeList').innerHTML=visible.length?visible.map(r=>`<article class="saved-pedigree"><div><strong>${escapeCellText(r.name)}</strong><small>${{sire:'牡馬',dam:'牝馬',any:'設定なし'}[r.sex]}／${escapeCellText(r.snapshot.F?.name||'未選択')} × ${escapeCellText(r.snapshot.M?.name||'未選択')}</small></div><button class="btn primary" data-saved-place="${r.id}">選択セルに配置</button><button class="btn" data-saved-whole="${r.id}">全体に配置</button><button class="btn" data-saved-delete="${r.id}">削除</button></article>`).join(''):'<p>この配置先で呼び出せる保存血統はありません。</p>';
   }
   document.getElementById('pedigreeLibraryOpen').onclick=()=>{renderSaved();dialog.showModal()};
   document.getElementById('savedPedigreeClose').onclick=()=>dialog.close();

@@ -18,6 +18,7 @@ function propagated(source){
   Object.keys(snap).sort((a,b)=>b.length-a.length).forEach(path=>{
     const h=snap[path];if(!h.homebred)return;
     const sire=snap[path+'F'];
+    if(!sire&&path.length===5)return;
     h.lineage=sire?.lineage||'';h.sublineage=sire?.sublineage||'';
   });
   return snap;
