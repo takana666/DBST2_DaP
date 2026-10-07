@@ -2,7 +2,7 @@
 function homebredGeneration(h){if(!h||!(h.homebred===true||h.homebred==='1'))return 0;return Number(h.homebredGeneration)||Number((h.name||'').match(/^(\d+)薄自家製/)?.[1])||1}
 function snapshotHomebredGeneration(snap,path){const h=snap[path];if(!h?.homebred)return 0;if(snap[path+'F']||snap[path+'M'])return Math.max(snapshotHomebredGeneration(snap,path+'F'),snapshotHomebredGeneration(snap,path+'M'))+1;return homebredGeneration(h)}
 function metadataName(name){return (name||'').normalize('NFKC').toLowerCase().replace(/[\s.・'’`´\-‐‑‒–—―]/g,'')}
-function correctedHorseFactors(h){return h?.name==='アグネスタキオン'&&h.homebred!==true&&h.homebred!=='1'?'':h?.factors||''}
+function correctedHorseFactors(h){if(h?.homebred===true||h?.homebred==='1')return h?.factors||'';return window.DABISTA2_FACTOR_REFERENCE.lookup[metadataName(h?.name)]||''}
 function nitroFactorCounts(horses){
   const counts=Object.fromEntries(['短','速','パ','底','長','ダ','丈','早','晩','堅','気'].map(f=>[f,0])),seen=new Set();
   for(const horse of horses){
