@@ -105,7 +105,7 @@ function pedigreeFitPercent(width,height,baseWidth=1400,baseHeight=1024){return 
     percent=Math.max(5,Math.min(160,value));const scale=percent/100;
     const horizontal=ped.dataset?.orientation==='horizontal';
     const mobile=document.body.classList.contains('mobile-layout');
-    const padding=mobile?8:28;
+    const padding=mobile?8:16;
     let availableHeight=Math.max(0,(scroll?.clientHeight||0)-padding);
     if(mobile&&scroll?.getBoundingClientRect){
       const rect=scroll.getBoundingClientRect(),bar=document.querySelector('.mobile-bar');
@@ -115,7 +115,7 @@ function pedigreeFitPercent(width,height,baseWidth=1400,baseHeight=1024){return 
     // Stretch rows independently of the width on phones; manual zoom scales
     // this fitted height as well so the overview can always be restored.
     const mobileFit=pedigreeFitPercent((scroll?.clientWidth||0)-padding,1e9,horizontal?2800:1400)/100;
-    const height=mobile?availableHeight*scale/mobileFit:horizontal?Math.max(512*scale,availableHeight):1024*scale;
+    const height=mobile?availableHeight*scale/mobileFit:automatic?availableHeight:horizontal?Math.max(512*scale,availableHeight):1024*scale;
     size.style.width=((horizontal?2800:1400)*scale)+'px';size.style.height=height+'px';
     ped.style.setProperty('height',(height/scale)+'px','important');
     // Fix the top-level grid track as well as the outer box on phones.
@@ -139,8 +139,8 @@ function pedigreeFitPercent(width,height,baseWidth=1400,baseHeight=1024){return 
     try{localStorage.setItem('dabista2-pedigree-zoom',String(percent))}catch{}
   }
   function fitFrame(){
-    const mobile=document.body.classList.contains('mobile-layout'),padding=mobile?8:28;
-    if(automatic&&scroll?.clientWidth>padding&&scroll?.clientHeight>padding)setZoom(pedigreeFitPercent(scroll.clientWidth-padding,mobile||ped.dataset?.orientation==='horizontal'?1e9:scroll.clientHeight-padding,ped.dataset?.orientation==='horizontal'?2800:1400,ped.dataset?.orientation==='horizontal'?512:1024));
+    const mobile=document.body.classList.contains('mobile-layout'),padding=mobile?8:16;
+    if(automatic&&scroll?.clientWidth>padding&&scroll?.clientHeight>padding)setZoom(pedigreeFitPercent(scroll.clientWidth-padding,1e9,ped.dataset?.orientation==='horizontal'?2800:1400,ped.dataset?.orientation==='horizontal'?512:1024));
   }
   out.onclick=()=>{automatic=false;setZoom(percent-10)};inside.onclick=()=>{automatic=false;setZoom(percent+10)};document.getElementById('pedigreeZoomReset').onclick=()=>{automatic=false;setZoom(100)};
   if(fit)fit.onclick=()=>{automatic=true;fitFrame()};setZoom(percent);fitFrame();

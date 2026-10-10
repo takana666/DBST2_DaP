@@ -62,10 +62,7 @@ function breedingSteps(snap){
   visit('F');visit('M');steps.push({path:'',sire:snap.F?.name||'未選択',dam:snap.M?.name||'未選択',name:'最終産駒'});return steps;
 }
 function crossesOf(snap){
-  const memo=new Map(),identity=path=>{
-    if(memo.has(path))return memo.get(path);const h=snap[path];if(!h)return'';
-    const key=h.homebred?'homebred('+identity(path+'F')+'×'+identity(path+'M')+')':'horse:'+norm(h.name);memo.set(path,key);return key;
-  };
+  const memo=new Map(),identity=path=>pedigreeCrossIdentity(snap,path,memo);
   const groups=new Map();
   for(const [path,h] of Object.entries(snap)){
     if(!h.name)continue;const key=identity(path),child=path.length===1?'':identity(path.slice(0,-1));

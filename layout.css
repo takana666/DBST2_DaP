@@ -82,3 +82,12 @@
 .ped[data-orientation="horizontal"] .homebred-factor-controls{margin-top:5px}
 .ped[data-orientation="horizontal"] .homebred-factor-controls select{height:calc(30px * var(--text-size-ratio,1));font-size:calc(16px * var(--text-size-ratio,1));padding:2px 4px}
 .saved-pedigree{flex-wrap:wrap}.saved-pedigree>div{flex-basis:180px}
+
+/* Frame overlays do not change cell dimensions or intercept selection. */
+#ped{--branch-border:#000;position:relative}
+#ped.danger-pedigree{--branch-border:#c62828}
+#ped::before,#ped::after{content:"";position:absolute;pointer-events:none;z-index:6;box-sizing:border-box}
+#ped::after{inset:0;border:3px solid var(--branch-border)}
+#ped::before{left:0;right:0;top:50%;border-top:3px solid var(--branch-border)}
+#ped[data-orientation="horizontal"]::before{left:50%;top:0;bottom:0;right:auto;border-top:0;border-left:3px solid var(--branch-border)}
+body:not(.mobile-layout) .ped-scroll .pedigree-size{margin-inline:0}
