@@ -66,3 +66,24 @@
 .mobile-layout .ped[data-orientation="vertical"]{grid-template-rows:minmax(0,1fr)}
 .mobile-layout .ped[data-orientation="vertical"]>.col{height:100%;min-height:0;overflow:hidden;grid-template-rows:repeat(32,minmax(0,1fr))}
 .mobile-layout .ped[data-orientation="vertical"]>.col>.cell,.mobile-layout .ped[data-orientation="vertical"]>.col>.lineage{min-height:0;max-height:100%;overflow:hidden}
+
+/* v41: shared search controls and compact mobile counters. */
+.nitro-label-mobile{display:none}
+.sidebody{flex:1;min-height:0}
+#candidateActions{flex:0 0 auto;margin-top:auto}
+#candidateScrollTop,#candidateScrollBottom{flex:0 0 44px}
+.horse[role="button"]{cursor:pointer}
+.horse[role="button"]:focus-visible{outline:3px solid var(--teal);outline-offset:2px}
+.mobile-layout #candidateActions{display:none}
+.mobile-layout .mobile-sheet-header{justify-content:flex-end;gap:6px;padding:6px 8px}
+.mobile-layout .mobile-sheet-header button{white-space:nowrap}
+.mobile-layout #mobileConditionClear{flex:1;max-width:140px}
+.mobile-layout .mobile-bar button{white-space:nowrap;padding-inline:2px;min-width:0}
+.mobile-layout .nitro-label-pc{display:none}
+.mobile-layout .nitro-label-mobile{display:inline}
+.mobile-layout .layout-summary{flex-wrap:wrap!important;gap:4px}
+.mobile-layout .layout-summary #nitro{min-width:0;flex:1 1 100%;flex-wrap:wrap!important;gap:4px}
+.mobile-layout .layout-summary #nitro .theories{flex-wrap:wrap;gap:3px}
+.mobile-layout .ability-count{font-size:11px}
+.mobile-layout .ability-count>span{padding:2px}
+.mobile-layout .ability-count>b{padding:2px 3px;min-width:18px}

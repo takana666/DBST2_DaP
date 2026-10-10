@@ -371,7 +371,7 @@ function applySolution(index){
 }
 
 document.querySelectorAll('.tab').forEach(tab=>tab.addEventListener('click',()=>{
-  const optimizer=tab.dataset.tab==='optimizer';document.getElementById('optimizerPanel').hidden=!optimizer;document.getElementById('candidateActions').hidden=optimizer;
+  const optimizer=tab.dataset.tab==='optimizer';document.getElementById('optimizerPanel').hidden=!optimizer;document.getElementById('candidateActions').hidden=false;
   if(optimizer){document.getElementById('results').hidden=true;refreshAvailability()}else document.getElementById('results').hidden=false;
 }));
 document.getElementById('optimizerRun').addEventListener('click',runOptimizer);
