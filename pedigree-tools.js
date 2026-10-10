@@ -9,7 +9,7 @@ function savedSearchCandidates(path){
 function savedCandidateSnapshot(horse){
   const base=selected.dataset.path,snap=currentSnapshot();for(const p of Object.keys(snap))if(p.startsWith(base))delete snap[p];
   const projection=savedPedigreeProjection(horse,base);projection[base].lineage=horse.lineage||'';projection[base].sublineage=horse.sublineage||'';Object.assign(snap,projection);
-  for(let depth=base.length-1;depth>=1;depth--){const p=base.slice(0,depth),sibling=p+(base[depth]==='F'?'M':'F');if(!snap[p]?.homebred)for(const q of Object.keys(snap))if(q.startsWith(sibling))delete snap[q];const father=snap[p+'F'];snap[p]={name:'1薄自家製'+(p.endsWith('M')?'牝馬':'種牡馬'),homebred:true,lineage:father?.lineage||'',sublineage:father?.sublineage||'',factors:snap[p]?.homebred?snap[p].factors||'':''}}
+  for(let depth=base.length-1;depth>=1;depth--){const p=base.slice(0,depth),sibling=p+(base[depth]==='F'?'M':'F');if(snap[p]?.name&&!snap[p]?.homebred)for(const q of Object.keys(snap))if(q.startsWith(sibling))delete snap[q];const father=snap[p+'F'];snap[p]={name:'1薄自家製'+(p.endsWith('M')?'牝馬':'種牡馬'),homebred:true,lineage:father?.lineage||'',sublineage:father?.sublineage||'',factors:snap[p]?.homebred?snap[p].factors||'':''}}
   return snap;
 }
 function savedPedigreeCompatible(record,path){return record.sex==='any'||record.sex===(path.endsWith('M')?'dam':'sire')}
@@ -52,7 +52,7 @@ function placeSavedPedigree(record){
     Object.assign(snap,projection);
     for(let depth=base.length-1;depth>=1;depth--){
       const path=base.slice(0,depth),sibling=path+(base[depth]==='F'?'M':'F');
-      if(!snap[path]?.homebred)for(const p of Object.keys(snap))if(p.startsWith(sibling))delete snap[p];
+      if(snap[path]?.name&&!snap[path]?.homebred)for(const p of Object.keys(snap))if(p.startsWith(sibling))delete snap[p];
       snap[path]={name:(base.length-depth)+'薄自家製'+(path.endsWith('M')?'牝馬':'種牡馬'),lineage:'',sublineage:'',factors:snap[path]?.homebred?snap[path].factors||'':'',homebred:true};
     }
     writePedigreeSnapshot(snap);refreshPedigreeBoard();document.getElementById('pedigreeLibrary').close();show(record.name+'の血統を配置しました（5代目まで）');
