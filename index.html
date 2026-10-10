@@ -189,7 +189,7 @@ function youngestTheoryLineage(snap,path,prefix=''){
   }
   return '';
 }
-function elaboratePositionEligible(path,side,prefix=''){if(side!=='F'&&side!=='M')return false;if(!path.startsWith(prefix+side))return false;const relative=path.slice(prefix.length);return /^[FM]{2,4}$/.test(relative)&&!(side==='F'&&relative==='FF')}
+function elaboratePositionEligible(path,side,prefix=''){if(side!=='F'&&side!=='M')return false;if(!path.startsWith(prefix+side))return false;const relative=path.slice(prefix.length);return /^[FM]{2,4}$/.test(relative)}
 function elaborateEntries(snap,side,prefix=''){return Object.entries(snap).filter(([path,h])=>h?.name&&elaboratePositionEligible(path,side,prefix))}
 function evaluateSnapshot(snap){const prefix=selected.dataset.path.slice(0,-1);const code=p=>youngestTheoryLineage(snap,p,prefix);const funnyCodes=['FFFF','FFMF','FMFF','FMMF','MFFF','MFMF','MMFF','MMMF'].map(code);const funny=funnyCodes.every(Boolean)&&new Set(funnyCodes).size>=7;const sirePerfect=['FFFMF','FFMMF','FMFMF','FMMMF'].map(code);const damFunny=['MFFF','MFMF','MMFF','MMMF'].map(code);const sorted=a=>[...a].sort().join('|');const splendid=sirePerfect.every(Boolean)&&damFunny.every(Boolean)&&new Set(damFunny).size>=3&&sorted(sirePerfect)===sorted(damFunny);const paternal=elaborateEntries(snap,'F',prefix);const maternal=elaborateEntries(snap,'M',prefix);const elaborate=paternal.some(([,a])=>maternal.some(([,b])=>elaboratePairs.has(normalizedName(a.name)+'\t'+normalizedName(b.name))));const nickStrength=nickStrengthFor(snap[prefix+'F']?.sublineage,snap[prefix+'M']?.sublineage);return {funny,splendid,perfect:funny&&splendid,elaborate,nickStrength}}
 function snapshotCrosses(snap){
