@@ -91,3 +91,18 @@
 #ped::before{left:0;right:0;top:50%;border-top:3px solid var(--branch-border)}
 #ped[data-orientation="horizontal"]::before{left:50%;top:0;bottom:0;right:auto;border-top:0;border-left:3px solid var(--branch-border)}
 body:not(.mobile-layout) .ped-scroll .pedigree-size{margin-inline:0}
+
+/* v45: keep selection above branch frames and constrain every grid row. */
+body:not(.mobile-layout) #ped{--branch-width:2px}
+.mobile-layout #ped{--branch-width:3px}
+#ped::after{border-width:var(--branch-width)}
+#ped::before{border-top-width:var(--branch-width)}
+#ped[data-orientation="horizontal"]::before{border-left-width:var(--branch-width)}
+#ped .cell.active{z-index:7}
+#ped:not([data-orientation="horizontal"]){grid-template-rows:minmax(0,1fr)}
+#ped:not([data-orientation="horizontal"])>.col{height:100%;min-height:0;grid-template-rows:repeat(32,minmax(0,1fr))}
+#ped[data-orientation="horizontal"]{grid-template-rows:repeat(16,minmax(0,1fr))}
+#ped .cell,#ped .lineage{min-height:0;overflow:hidden}
+#ped .cell[data-path].generation-5 .name-row{flex-wrap:nowrap;min-width:0}
+#ped .cell[data-path].generation-5 .horse-name{display:block!important;white-space:nowrap!important;overflow:hidden;text-overflow:ellipsis;flex:1 1 0;min-width:0;max-width:none}
+#ped .cell.generation-5 .lineage-code,#ped .cell.generation-5 .factor-row{flex:0 0 auto}

@@ -30,8 +30,9 @@ function renderHorseCell(cell){
   cell.dataset.factors=correctedHorseFactors(cell.dataset);
   const h=cell.dataset,name=escapeCellText(h.name),lineage=h.path.endsWith('F')&&h.lineage&&h.lineage!=='--'?`<span class="lineage-code">【${escapeCellText(h.lineage)}】</span>`:'';
   const subValue=h.path==='MF'?(typeof cellAt==='function'?cellAt('M')?.dataset.sublineage:'')||h.sublineage:h.sublineage;const sub=['F','MF'].includes(h.path)&&subValue&&subValue!=='子系統未確認'?subValue:'';
-  const info=h.placed==='1'&&!window.DABISTA_HIDE_HORSE_INFORMATION?horseInformation(h.name,h.homebred==='1'):'',detail=[sub,info].filter(Boolean).join('・');
+  const info=h.path.length<5&&h.placed==='1'&&!window.DABISTA_HIDE_HORSE_INFORMATION?horseInformation(h.name,h.homebred==='1'):'',detail=[sub,info].filter(Boolean).join('・');
   updateDetailLines(cell);
+  if(h.path.length===5){cell.innerHTML=`<div class="cell-main"><div class="name-row"><span class="horse-name" title="${name}">${name}</span>${lineage}<span class="factor-row">${factors([...(h.factors||'')])}</span></div></div>`;return}
   cell.innerHTML=`<div class="cell-main"><div class="name-row"><span class="horse-name" title="${name}">${name}</span>${h.homebred==='1'&&!/^\d+薄自家製/.test(h.name)?`<span class="homebred-age">自家製${homebredGeneration(h)}代</span>`:''}${lineage}<span class="factor-row">${factors([...(h.factors||'')])}</span></div>${detail?`<div class="horse-details" title="${escapeCellText(detail)}">${sub?`<span class="sublineage-info">${escapeCellText(sub)}</span>`:''}${info?`<span class="horse-statistics">${escapeCellText(info)}</span>`:''}</div>`:''}${homebredFactorControls(h)}</div>`;
 }
 function candidateFactorCount(horse,depth,selectedFactors){
