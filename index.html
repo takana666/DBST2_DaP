@@ -178,21 +178,15 @@ const lineageText=h=>h?.sublineage&&h.sublineage!=='子系統未確認'?`${displ
 const theoryLabels={funny:'面白',splendid:'見事',perfect:'完璧',elaborate:'凝った'};
 function currentSnapshot(){const snap={};document.querySelectorAll('.cell[data-path]').forEach(c=>{if(c.dataset.name)snap[c.dataset.path]={name:c.dataset.name,lineage:c.dataset.lineage||'',sublineage:c.dataset.sublineage||'',factors:c.dataset.factors||'',homebred:c.dataset.homebred==='1',homebredGeneration:Number(c.dataset.homebredGeneration)||0}});return snap}
 function candidateSnapshot(horse){if(horse.savedPedigree)return savedCandidateSnapshot(horse);const snap=currentSnapshot(),base=selected.dataset.path;Object.keys(snap).forEach(p=>{if(p.startsWith(base))delete snap[p]});snap[base]={name:horse.name,lineage:displayLineage(horse),sublineage:horse.sublineage||'',factors:(horse.factors||[]).join(''),homebred:false};Object.entries(horse.ancestors||{}).forEach(([jp,a])=>{const p=base+jpToPath(jp);snap[p]={name:a.name,lineage:displayLineage(a),sublineage:a.sublineage||'',factors:(a.factors||[]).join(''),homebred:false}});for(let length=base.length-1;length>=1;length--){const p=base.slice(0,length),sibling=p+(base[length]==='F'?'M':'F'),wasHomebred=snap[p]?.homebred;if(snap[p]?.name&&!wasHomebred)Object.keys(snap).forEach(path=>{if(path.startsWith(sibling))delete snap[path]});snap[p]={name:`${base.length-length}薄自家製${p.endsWith('M')?'牝馬':'種牡馬'}`,lineage:'',sublineage:'',factors:wasHomebred?snap[p]?.factors||'':'',homebred:true}}return snap}
-// Each theory slot follows one paternal line. Prefer its youngest recorded sire.
-function theoryLineagePaths(path){
-  const start=path.lastIndexOf('M')+2;
-  return Array.from({length:Math.max(0,path.length-start+1)},(_,i)=>path.slice(0,start+i));
-}
-function youngestTheoryLineage(snap,path,prefix=''){
-  for(const p of theoryLineagePaths(path)){
-    const value=snap[prefix+p]?.lineage||'';
-    if(majorLineageCodes.includes(value))return value;
-  }
-  return '';
+// 配合理論の大系統は、それぞれの固定枠を直接参照する。
+// 面白は3代目の8枠、見事・完璧は4代目の見事系統／面白系統を使う。
+function theoryLineageAt(snap,path,prefix=''){
+  const value=snap[prefix+path]?.lineage||'';
+  return majorLineageCodes.includes(value)?value:'';
 }
 function elaboratePositionEligible(path,side,prefix=''){if(side!=='F'&&side!=='M')return false;if(!path.startsWith(prefix+side))return false;const relative=path.slice(prefix.length);return /^[FM]{2,4}$/.test(relative)}
 function elaborateEntries(snap,side,prefix=''){return Object.entries(snap).filter(([path,h])=>h?.name&&elaboratePositionEligible(path,side,prefix))}
-function evaluateSnapshot(snap){const prefix=selected.dataset.path.slice(0,-1);const code=p=>youngestTheoryLineage(snap,p,prefix);const funnyCodes=['FFFF','FFMF','FMFF','FMMF','MFFF','MFMF','MMFF','MMMF'].map(code);const funny=funnyCodes.every(Boolean)&&new Set(funnyCodes).size>=7;const sirePerfect=['FFFMF','FFMMF','FMFMF','FMMMF'].map(code);const damFunny=['MFFF','MFMF','MMFF','MMMF'].map(code);const sorted=a=>[...a].sort().join('|');const splendid=sirePerfect.every(Boolean)&&damFunny.every(Boolean)&&new Set(damFunny).size>=3&&sorted(sirePerfect)===sorted(damFunny);const paternal=elaborateEntries(snap,'F',prefix);const maternal=elaborateEntries(snap,'M',prefix);const elaborate=paternal.some(([,a])=>maternal.some(([,b])=>elaboratePairs.has(normalizedName(a.name)+'\t'+normalizedName(b.name))));const nickStrength=nickStrengthFor(snap[prefix+'F']?.sublineage,snap[prefix+'M']?.sublineage);return {funny,splendid,perfect:funny&&splendid,elaborate,nickStrength}}
+function evaluateSnapshot(snap){const prefix=selected.dataset.path.slice(0,-1);const code=p=>theoryLineageAt(snap,p,prefix);const funnyCodes=['FFFF','FFMF','FMFF','FMMF','MFFF','MFMF','MMFF','MMMF'].map(code);const funny=funnyCodes.every(Boolean)&&new Set(funnyCodes).size>=7;const sirePerfect=['FFFMF','FFMMF','FMFMF','FMMMF'].map(code);const damFunny=['MFFF','MFMF','MMFF','MMMF'].map(code);const sorted=a=>[...a].sort().join('|');const splendid=sirePerfect.every(Boolean)&&damFunny.every(Boolean)&&new Set(damFunny).size>=3&&sorted(sirePerfect)===sorted(damFunny);const paternal=elaborateEntries(snap,'F',prefix);const maternal=elaborateEntries(snap,'M',prefix);const elaborate=paternal.some(([,a])=>maternal.some(([,b])=>elaboratePairs.has(normalizedName(a.name)+'\t'+normalizedName(b.name))));const nickStrength=nickStrengthFor(snap[prefix+'F']?.sublineage,snap[prefix+'M']?.sublineage);return {funny,splendid,perfect:funny&&splendid,elaborate,nickStrength}}
 function pedigreeCrossIdentity(snap,path,memo=new Map()){
   if(memo.has(path))return memo.get(path);const h=snap[path];if(!h?.name)return '';
   let key;if(h.homebred===true||h.homebred==='1'){const sire=pedigreeCrossIdentity(snap,path+'F',memo),dam=pedigreeCrossIdentity(snap,path+'M',memo);key=sire&&dam?`homebred(${sire}×${dam})`:`homebred-incomplete:${path}`}else key='horse:'+normalizedName(h.name);
@@ -262,7 +256,7 @@ function validateCompositionNode(node,path){if(path.length>5)throw new Error('5�
 function applyCompositionText(){try{const tree=parseCompositionText(document.getElementById('compositionInput').value);validateCompositionNode(tree.left,'F');validateCompositionNode(tree.right,'M');document.querySelectorAll('.cell[data-path]').forEach(clearCell);placeCompositionNode(tree.left,'F');placeCompositionNode(tree.right,'M');updateInheritedLineages();updateLineages();updateComposition();updateNitro();render();show('配合文から血統表を再構成しました')}catch(error){show(error.message)}}
 const nitroFactorOrder=['短','速','パ','底','長','ダ','丈','早','晩','堅','気'];
 const cellAt=p=>document.querySelector(`.cell[data-path="${p}"]`);
-const codeAt=p=>youngestTheoryLineage(currentSnapshot(),p);
+const codeAt=p=>theoryLineageAt(currentSnapshot(),p);
 const normalizedName=s=>(s||'').normalize('NFKC').toLowerCase().replace(/[\s.・'’`´\-‐‑‒–—―]/g,'');
 const elaboratePairs=new Set((window.DABISTA2_DATA.elaboratePairs||[]).map(([a,b])=>normalizedName(a)+'\t'+normalizedName(b)));
 function currentCrosses(){const cells=[...document.querySelectorAll('.cell[data-path]')].filter(c=>c.dataset.name);const byPath=new Map(cells.map(c=>[c.dataset.path,c]));const identityMemo=new Map();const snap=currentSnapshot();const identityAt=path=>pedigreeCrossIdentity(snap,path,identityMemo);const groups=new Map();cells.forEach(cell=>{const path=cell.dataset.path,key=identityAt(path);if(!key)return;const child=path.length===1?path:identityAt(path.slice(0,-1));if(!groups.has(key))groups.set(key,{name:cell.dataset.name,occurrences:[]});groups.get(key).occurrences.push({cell,generation:path.length,side:path[0],child})});return [...groups.values()].filter(x=>new Set(x.occurrences.map(o=>o.side)).size>1&&new Set(x.occurrences.map(o=>o.child).filter(Boolean)).size>1).map(x=>{x.cells=x.occurrences.map(o=>o.cell);x.generations=x.occurrences.map(o=>o.generation).sort((a,b)=>a-b);x.blood=x.generations.reduce((sum,g)=>sum+100/(2**g),0);return x}).sort((a,b)=>b.blood-a.blood||a.name.localeCompare(b.name,'ja'))}
@@ -338,4 +332,4 @@ document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
 document.getElementById('applyComposition').onclick=applyCompositionText;document.getElementById('compositionInput').onkeydown=e=>{if(e.key==='Enter')applyCompositionText()};
 chosen=null;updateInheritedLineages();updateLineages();updateComposition();updateNitro();render();
 function show(s){const t=document.getElementById('toast');t.textContent=s;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1800)}
-</script><script src="pedigree-tools.js?v=40"></script><script src="optimizer.js?v=44"></script><script src="layout.js"></script><script src="mobile.js?v=41"></script><script src="homebred-factors.js"></script></body></html>
+</script><script src="pedigree-tools.js?v=40"></script><script src="optimizer.js?v=47"></script><script src="layout.js"></script><script src="mobile.js?v=41"></script><script src="homebred-factors.js"></script></body></html>
